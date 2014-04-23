@@ -54,7 +54,7 @@
             <artifactId>bukkit</artifactId>
             <version>1.6.4-R2.0</version>
             <type>jar</type>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>

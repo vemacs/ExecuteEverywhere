@@ -54,7 +54,7 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
         return true;
     }
 
-        public class EESubscriber extends JedisPubSub {
+    public class EESubscriber extends JedisPubSub {
         @Override
         public void onMessage(String channel, final String msg) {
             // Needs to be done in the server thread
