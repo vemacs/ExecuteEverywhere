@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
@@ -32,7 +33,13 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                pool.getResource().subscribe(new EESubscriber(), CHANNEL);
+                Jedis jedis = pool.getResource();
+                try {
+                    jedis.subscribe(new EESubscriber(), CHANNEL);
+                } catch (Exception e) {
+                    pool.returnBrokenResource(jedis);
+                }
+                pool.returnResource(jedis);
             }
         }, "ExecuteEverywhere Subscriber").start();
     }
@@ -47,7 +54,13 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
         getServer().getScheduler().runTaskAsynchronously(this, new BukkitRunnable() {
             @Override
             public void run() {
-                pool.getResource().publish(CHANNEL, finalCmdString);
+                Jedis jedis = pool.getResource();
+                try {
+                    jedis.publish(CHANNEL, finalCmdString);
+                } catch (Exception e) {
+                    pool.returnBrokenResource(jedis);
+                }
+                pool.returnResource(jedis);
             }
         });
         sender.sendMessage(ChatColor.GREEN + "Sent /" + cmdString + " for execution.");
