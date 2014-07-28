@@ -7,7 +7,7 @@
     <groupId>me.vemacs</groupId>
     <artifactId>ExecuteEverywhere</artifactId>
     <packaging>pom</packaging>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
     <modules>
         <module>ee-bukkit</module>
     </modules>
