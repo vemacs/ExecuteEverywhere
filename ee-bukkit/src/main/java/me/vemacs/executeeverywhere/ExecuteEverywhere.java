@@ -17,6 +17,7 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
     private JedisPool pool;
     private static final Joiner joiner = Joiner.on(" ");
     private final String CHANNEL = "ee";
+    private final String BUNGEE_CHANNEL = "eb";
     private static Plugin instance;
 
     @Override
@@ -30,7 +31,7 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
             pool = new JedisPool(new JedisPoolConfig(), ip, port, 0);
         else
             pool = new JedisPool(new JedisPoolConfig(), ip, port, 0, password);
-        new Thread(new Runnable() {
+        new BukkitRunnable() {
             @Override
             public void run() {
                 Jedis jedis = pool.getResource();
@@ -41,7 +42,7 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
                 }
                 pool.returnResource(jedis);
             }
-        }, "ExecuteEverywhere Subscriber").start();
+        }.runTaskAsynchronously(this);
     }
 
     @Override
@@ -56,7 +57,13 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
             public void run() {
                 Jedis jedis = pool.getResource();
                 try {
-                    jedis.publish(CHANNEL, finalCmdString);
+                    switch(cmd.getName().toLowerCase()) {
+                        case "ee":
+                            jedis.publish(BUNGEE_CHANNEL, finalCmdString);
+                            break;
+                        default:
+                            jedis.publish(CHANNEL, finalCmdString);
+                    }
                 } catch (Exception e) {
                     pool.returnBrokenResource(jedis);
                 }

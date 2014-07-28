@@ -4,10 +4,16 @@ name: ExecuteEverywhere
 version: ${version}
 commands:
   ee:
-    description: Dispatches a command for execution.
+    description: Dispatches a command for execution to all connected Bukkit servers.
     aliases: [executeeverywhere]
     permission: executeeverywhere.use
     usage: /ee <cmd>
+    permission-message: You don't have permission to use this.
+  eb:
+    description: Dispatches a command for execution to all connected BungeeCord servers.
+    aliases: [executebungee]
+    permission: executeeverywhere.use
+    usage: /eb <cmd>
     permission-message: You don't have permission to use this.
 permissions:
   executeeverywhere.use:
