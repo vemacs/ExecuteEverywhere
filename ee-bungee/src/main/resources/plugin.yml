@@ -1,0 +1,4 @@
+author: vemacs
+main: me.vemacs.executeeverywhere.ExecuteEverywhere
+name: ExecuteEverywhere
+version: ${version}
