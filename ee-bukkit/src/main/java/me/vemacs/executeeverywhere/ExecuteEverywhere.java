@@ -31,18 +31,16 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
             pool = new JedisPool(new JedisPoolConfig(), ip, port, 0);
         else
             pool = new JedisPool(new JedisPoolConfig(), ip, port, 0, password);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Jedis jedis = pool.getResource();
-                try {
-                    jedis.subscribe(new EESubscriber(), CHANNEL);
-                } catch (Exception e) {
-                    pool.returnBrokenResource(jedis);
-                }
-                pool.returnResource(jedis);
-            }
-        }.runTaskAsynchronously(this);
+        Jedis jedis = pool.getResource();
+        try {
+            jedis.subscribe(new EESubscriber(), CHANNEL);
+        } catch (Exception e) {
+            e.printStackTrace();
+            pool.returnBrokenResource(jedis);
+            getLogger().severe("Unable to connect to Redis server.");
+            return;
+        }
+        pool.returnResource(jedis);
     }
 
     @Override
@@ -52,12 +50,12 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
         if (cmdString.startsWith("/"))
             cmdString = cmdString.substring(1);
         final String finalCmdString = cmdString;
-        getServer().getScheduler().runTaskAsynchronously(this, new BukkitRunnable() {
+        new BukkitRunnable() {
             @Override
             public void run() {
                 Jedis jedis = pool.getResource();
                 try {
-                    switch(cmd.getName().toLowerCase()) {
+                    switch (cmd.getName().toLowerCase()) {
                         case "ee":
                             jedis.publish(BUNGEE_CHANNEL, finalCmdString);
                             break;
@@ -69,43 +67,43 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
                 }
                 pool.returnResource(jedis);
             }
-        });
+        }.runTaskAsynchronously(this);
         sender.sendMessage(ChatColor.GREEN + "Sent /" + cmdString + " for execution.");
         return true;
     }
 
-    public class EESubscriber extends JedisPubSub {
-        @Override
-        public void onMessage(String channel, final String msg) {
-            // Needs to be done in the server thread
-            getServer().getScheduler().runTask(ExecuteEverywhere.instance, new BukkitRunnable() {
-                @Override
-                public void run() {
-                    ExecuteEverywhere.instance.getLogger().info("Dispatching /" + msg);
-                    getServer().dispatchCommand(getServer().getConsoleSender(), msg);
-                }
-            });
-        }
-
-        @Override
-        public void onPMessage(String s, String s2, String s3) {
-        }
-
-        @Override
-        public void onSubscribe(String s, int i) {
-        }
-
-        @Override
-        public void onUnsubscribe(String s, int i) {
-        }
-
-        @Override
-        public void onPUnsubscribe(String s, int i) {
-        }
-
-        @Override
-        public void onPSubscribe(String s, int i) {
-        }
+public class EESubscriber extends JedisPubSub {
+    @Override
+    public void onMessage(String channel, final String msg) {
+        // Needs to be done in the server thread
+        getServer().getScheduler().runTask(ExecuteEverywhere.instance, new BukkitRunnable() {
+            @Override
+            public void run() {
+                ExecuteEverywhere.instance.getLogger().info("Dispatching /" + msg);
+                getServer().dispatchCommand(getServer().getConsoleSender(), msg);
+            }
+        });
     }
+
+    @Override
+    public void onPMessage(String s, String s2, String s3) {
+    }
+
+    @Override
+    public void onSubscribe(String s, int i) {
+    }
+
+    @Override
+    public void onUnsubscribe(String s, int i) {
+    }
+
+    @Override
+    public void onPUnsubscribe(String s, int i) {
+    }
+
+    @Override
+    public void onPSubscribe(String s, int i) {
+    }
+}
 }
 
