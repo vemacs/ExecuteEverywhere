@@ -1,7 +1,7 @@
 author: vemacs
 main: me.vemacs.executeeverywhere.ExecuteEverywhere
 name: ExecuteEverywhere
-version: '1.1'
+version: ${version}
 commands:
   ee:
     description: Dispatches a command for execution.
