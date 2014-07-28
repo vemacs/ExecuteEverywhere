@@ -72,38 +72,38 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
         return true;
     }
 
-public class EESubscriber extends JedisPubSub {
-    @Override
-    public void onMessage(String channel, final String msg) {
-        // Needs to be done in the server thread
-        getServer().getScheduler().runTask(ExecuteEverywhere.instance, new BukkitRunnable() {
-            @Override
-            public void run() {
-                ExecuteEverywhere.instance.getLogger().info("Dispatching /" + msg);
-                getServer().dispatchCommand(getServer().getConsoleSender(), msg);
-            }
-        });
-    }
+    public class EESubscriber extends JedisPubSub {
+        @Override
+        public void onMessage(String channel, final String msg) {
+            // Needs to be done in the server thread
+            getServer().getScheduler().runTask(ExecuteEverywhere.instance, new BukkitRunnable() {
+                @Override
+                public void run() {
+                    ExecuteEverywhere.instance.getLogger().info("Dispatching /" + msg);
+                    getServer().dispatchCommand(getServer().getConsoleSender(), msg);
+                }
+            });
+        }
 
-    @Override
-    public void onPMessage(String s, String s2, String s3) {
-    }
+        @Override
+        public void onPMessage(String s, String s2, String s3) {
+        }
 
-    @Override
-    public void onSubscribe(String s, int i) {
-    }
+        @Override
+        public void onSubscribe(String s, int i) {
+        }
 
-    @Override
-    public void onUnsubscribe(String s, int i) {
-    }
+        @Override
+        public void onUnsubscribe(String s, int i) {
+        }
 
-    @Override
-    public void onPUnsubscribe(String s, int i) {
-    }
+        @Override
+        public void onPUnsubscribe(String s, int i) {
+        }
 
-    @Override
-    public void onPSubscribe(String s, int i) {
+        @Override
+        public void onPSubscribe(String s, int i) {
+        }
     }
-}
 }
 
