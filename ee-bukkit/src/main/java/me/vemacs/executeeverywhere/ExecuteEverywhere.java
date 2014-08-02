@@ -56,7 +56,7 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
                 Jedis jedis = pool.getResource();
                 try {
                     switch (cmd.getName().toLowerCase()) {
-                        case "ee":
+                        case "eb":
                             jedis.publish(BUNGEE_CHANNEL, finalCmdString);
                             break;
                         default:
