@@ -13,6 +13,8 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 
+import java.lang.Override;
+
 public class ExecuteEverywhere extends JavaPlugin implements Listener {
     private JedisPool pool;
     private static final Joiner joiner = Joiner.on(" ");
@@ -31,16 +33,21 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
             pool = new JedisPool(new JedisPoolConfig(), ip, port, 0);
         else
             pool = new JedisPool(new JedisPoolConfig(), ip, port, 0, password);
-        Jedis jedis = pool.getResource();
-        try {
-            jedis.subscribe(new EESubscriber(), CHANNEL);
-        } catch (Exception e) {
-            e.printStackTrace();
-            pool.returnBrokenResource(jedis);
-            getLogger().severe("Unable to connect to Redis server.");
-            return;
-        }
-        pool.returnResource(jedis);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Jedis jedis = pool.getResource();
+                try {
+                    jedis.subscribe(new EESubscriber(), CHANNEL);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    pool.returnBrokenResource(jedis);
+                    getLogger().severe("Unable to connect to Redis server.");
+                    return;
+                }
+                pool.returnResource(jedis);
+            }
+        }.runTaskAsynchronously(this);
     }
 
     @Override
@@ -76,13 +83,13 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
         @Override
         public void onMessage(String channel, final String msg) {
             // Needs to be done in the server thread
-            getServer().getScheduler().runTask(ExecuteEverywhere.instance, new BukkitRunnable() {
+             new BukkitRunnable() {
                 @Override
                 public void run() {
                     ExecuteEverywhere.instance.getLogger().info("Dispatching /" + msg);
                     getServer().dispatchCommand(getServer().getConsoleSender(), msg);
                 }
-            });
+            }.runTaskAsynchronously(ExecuteEverywhere.instance);
         }
 
         @Override

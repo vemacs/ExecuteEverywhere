@@ -37,16 +37,20 @@ public class ExecuteEverywhere extends Plugin implements Listener {
             pool = new JedisPool(new JedisPoolConfig(), ip, port, 0);
         else
             pool = new JedisPool(new JedisPoolConfig(), ip, port, 0, password);
-        Jedis jedis = pool.getResource();
-        try {
-            jedis.subscribe(new EESubscriber(), BUNGEE_CHANNEL);
-        } catch (Exception e) {
-            e.printStackTrace();
-            pool.returnBrokenResource(jedis);
-            getLogger().severe("Unable to connect to Redis server.");
-            return;
-        }
-        pool.returnResource(jedis);
+        getProxy().getScheduler().runAsync(this, new Runnable() {
+            @Override
+            public void run() {
+                Jedis jedis = pool.getResource();
+                try {
+                    jedis.subscribe(new EESubscriber(), BUNGEE_CHANNEL);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    pool.returnBrokenResource(jedis);
+                    getLogger().severe("Unable to connect to Redis server.");
+                    return;
+                }
+                pool.returnResource(jedis);            }
+        });
     }
 
     public class EESubscriber extends JedisPubSub {
