@@ -1,4 +1,4 @@
-package me.vemacs.executeeverywhere;
+package me.vemacs.executeeverywhere.bukkit;
 
 import com.google.common.base.Joiner;
 import org.bukkit.ChatColor;

@@ -1,5 +1,5 @@
 author: vemacs
-main: me.vemacs.executeeverywhere.ExecuteEverywhere
+main: me.vemacs.executeeverywhere.bukkit.ExecuteEverywhere
 name: ExecuteEverywhere
 version: ${version}
 commands:

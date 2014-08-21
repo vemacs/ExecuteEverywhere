@@ -1,4 +1,4 @@
 author: vemacs
-main: me.vemacs.executeeverywhere.ExecuteEverywhere
+main: me.vemacs.executeeverywhere.bungee.ExecuteEverywhere
 name: ExecuteEverywhere
 version: ${version}

@@ -1,4 +1,4 @@
-package me.vemacs.executeeverywhere;
+package me.vemacs.executeeverywhere.bungee;
 
 import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.ProxyServer;
