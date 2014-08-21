@@ -30,16 +30,16 @@ public class ExecuteEverywhere extends Plugin implements Listener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String ip = config.getString("ip");
-        int port = config.getInt("port");
-        String password = config.getString("password");
-        if (password == null || password.equals(""))
-            pool = new JedisPool(new JedisPoolConfig(), ip, port, 0);
-        else
-            pool = new JedisPool(new JedisPoolConfig(), ip, port, 0, password);
+        final String ip = config.getString("ip");
+        final int port = config.getInt("port");
+        final String password = config.getString("password");
         getProxy().getScheduler().runAsync(this, new Runnable() {
             @Override
             public void run() {
+                if (password == null || password.equals(""))
+                    pool = new JedisPool(new JedisPoolConfig(), ip, port, 0);
+                else
+                    pool = new JedisPool(new JedisPoolConfig(), ip, port, 0, password);
                 Jedis jedis = pool.getResource();
                 try {
                     jedis.subscribe(new EESubscriber(), BUNGEE_CHANNEL);
