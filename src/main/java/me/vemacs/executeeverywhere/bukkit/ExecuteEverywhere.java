@@ -21,6 +21,7 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
     private final String CHANNEL = "ee";
     private final String BUNGEE_CHANNEL = "eb";
     private static Plugin instance;
+    private EESubscriber eeSubscriber;
 
     @Override
     public void onEnable() {
@@ -36,9 +37,10 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
+                eeSubscriber = new EESubscriber();
                 Jedis jedis = pool.getResource();
                 try {
-                    jedis.subscribe(new EESubscriber(), CHANNEL);
+                    jedis.subscribe(eeSubscriber, CHANNEL);
                 } catch (Exception e) {
                     e.printStackTrace();
                     pool.returnBrokenResource(jedis);
@@ -48,6 +50,12 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
                 pool.returnResource(jedis);
             }
         }.runTaskAsynchronously(this);
+    }
+
+    @Override
+    public void onDisable() {
+        eeSubscriber.unsubscribe();
+        pool.destroy();
     }
 
     @Override

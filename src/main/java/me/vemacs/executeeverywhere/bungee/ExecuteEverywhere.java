@@ -20,6 +20,7 @@ public class ExecuteEverywhere extends Plugin implements Listener {
     private static Plugin instance;
 
     Configuration config;
+    EESubscriber eeSubscriber;
 
     @Override
     public void onEnable() {
@@ -51,6 +52,12 @@ public class ExecuteEverywhere extends Plugin implements Listener {
                 }
                 pool.returnResource(jedis);            }
         });
+    }
+
+    @Override
+    public void onDisable() {
+        eeSubscriber.unsubscribe();
+        pool.destroy();
     }
 
     public class EESubscriber extends JedisPubSub {
