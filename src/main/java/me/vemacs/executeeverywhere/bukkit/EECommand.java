@@ -17,7 +17,7 @@ public class EECommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(final CommandSender commandSender, Command command, String s, String[] args) {
-        if (args.length < 1 || (command.getName().equalsIgnoreCase("eec") && args.length < 2)) {
+        if (args.length < 1 || (command.getName().equalsIgnoreCase("eeg") && args.length < 2)) {
             commandSender.sendMessage(ChatColor.RED + "Invalid usage.");
             if (command.getName().equalsIgnoreCase("eec")) {
                 commandSender.sendMessage(ChatColor.RED + "/" + s + " <group> <command>");
@@ -30,7 +30,7 @@ public class EECommand implements CommandExecutor {
         final String channel;
         final String run;
 
-        if (command.getName().equals("eec")) {
+        if (command.getName().equals("eeg")) {
             channel = "ee-" + args[0];
             run = Joiner.on(' ').join(Arrays.copyOfRange(args, 1, args.length));
         } else if (command.getName().equals("ee")) {
