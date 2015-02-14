@@ -15,6 +15,12 @@ commands:
     permission: executeeverywhere.use
     usage: /eb <cmd>
     permission-message: You don't have permission to use this.
+  eeg:
+    description: Dispatches a command for execution to all connected servers in a group.
+    aliases: [executegroup]
+    permission: executeeverywhere.use
+    usage: /eeg <group> <cmd>
+    permission-message: You don't have permission to use this.
 permissions:
   executeeverywhere.use:
     description: Lets you dispatch a command for execution on all servers.
