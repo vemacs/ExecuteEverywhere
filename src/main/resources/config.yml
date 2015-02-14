@@ -1,3 +1,6 @@
 ip: 127.0.0.1
 port: 6379
 password: ""
+# Example groups:
+# groups: [all, debian7, mybox1, mysql]
+groups: []

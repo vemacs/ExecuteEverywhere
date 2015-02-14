@@ -1,6 +1,9 @@
 package me.vemacs.executeeverywhere.bungee;
 
 import com.google.common.io.ByteStreams;
+import lombok.Getter;
+import me.vemacs.executeeverywhere.common.AbstractJedisPubSub;
+import me.vemacs.executeeverywhere.common.EEConfiguration;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -13,45 +16,42 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 
 import java.io.*;
+import java.util.List;
 
-public class ExecuteEverywhere extends Plugin implements Listener {
+public class ExecuteEverywhere extends Plugin {
+    @Getter
     private JedisPool pool;
-    private final String BUNGEE_CHANNEL = "eb";
-    private static Plugin instance;
-
-    Configuration config;
-    EESubscriber eeSubscriber;
+    @Getter
+    private EEConfiguration configuration;
+    private EESubscriber eeSubscriber;
 
     @Override
     public void onEnable() {
-        instance = this;
+        final Configuration config;
         try {
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(
                     loadResource(this, "config.yml"));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Unable to read config.yml", e);
         }
-        final String ip = config.getString("ip");
-        final int port = config.getInt("port");
-        final String password = config.getString("password");
+
+        String ip = config.getString("ip");
+        int port = config.getInt("port");
+        String password = config.getString("password");
+        List<String> serverGroups = config.getStringList("groups");
+        configuration = new EEConfiguration(serverGroups, ip, port, password);
+
         getProxy().getScheduler().runAsync(this, new Runnable() {
             @Override
             public void run() {
-                if (password == null || password.equals(""))
-                    pool = new JedisPool(new JedisPoolConfig(), ip, port, 0);
-                else
-                    pool = new JedisPool(new JedisPoolConfig(), ip, port, 0, password);
-                Jedis jedis = pool.getResource();
-                try {
-                    jedis.subscribe(new EESubscriber(), BUNGEE_CHANNEL);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    pool.returnBrokenResource(jedis);
-                    getLogger().severe("Unable to connect to Redis server.");
-                    return;
-                }
-                pool.returnResource(jedis);            }
+                pool = configuration.getJedisPool();
+                getProxy().getScheduler().runAsync(ExecuteEverywhere.this, eeSubscriber = new EESubscriber());
+            }
         });
+
+        getProxy().getPluginManager().registerCommand(this, new EECommand(this, "ee", EECommandKind.BUKKIT));
+        getProxy().getPluginManager().registerCommand(this, new EECommand(this, "eb", EECommandKind.BUNGEECORD));
+        getProxy().getPluginManager().registerCommand(this, new EECommand(this, "eeg", EECommandKind.GROUP));
     }
 
     @Override
@@ -60,32 +60,15 @@ public class ExecuteEverywhere extends Plugin implements Listener {
         pool.destroy();
     }
 
-    public class EESubscriber extends JedisPubSub {
+    public class EESubscriber extends AbstractJedisPubSub {
+        public EESubscriber() {
+            super(pool, configuration);
+        }
+
         @Override
         public void onMessage(String channel, final String msg) {
-            ExecuteEverywhere.instance.getLogger().info("Dispatching /" + msg);
-            ProxyServer ps = ProxyServer.getInstance();
-            ps.getPluginManager().dispatchCommand(ps.getConsole(), msg);
-        }
-
-        @Override
-        public void onPMessage(String s, String s2, String s3) {
-        }
-
-        @Override
-        public void onSubscribe(String s, int i) {
-        }
-
-        @Override
-        public void onUnsubscribe(String s, int i) {
-        }
-
-        @Override
-        public void onPUnsubscribe(String s, int i) {
-        }
-
-        @Override
-        public void onPSubscribe(String s, int i) {
+            ExecuteEverywhere.this.getLogger().info("Dispatching /" + msg);
+            ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getConsole(), msg);
         }
     }
 
