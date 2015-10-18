@@ -97,7 +97,7 @@ public class ExecuteEverywhere extends JavaPlugin implements Listener {
                     ExecuteEverywhere.instance.getLogger().info("Dispatching /" + msg);
                     getServer().dispatchCommand(getServer().getConsoleSender(), msg);
                 }
-            }.runTaskAsynchronously(ExecuteEverywhere.instance);
+            }.runTask(ExecuteEverywhere.instance);
         }
 
         @Override
